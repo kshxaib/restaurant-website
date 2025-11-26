@@ -1,9 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 
 const DishCard = ({ dish, showQuickAdd = true }) => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const isFavorite = isInWishlist(dish.id);
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
@@ -12,6 +15,11 @@ const DishCard = ({ dish, showQuickAdd = true }) => {
 
   const handleCardClick = () => {
     navigate(`/item/${dish.id}`);
+  };
+
+  const handleToggleWishlist = (e) => {
+    e.stopPropagation();
+    toggleWishlist(dish);
   };
 
   const renderSpiceLevel = () => {
@@ -32,8 +40,35 @@ const DishCard = ({ dish, showQuickAdd = true }) => {
   return (
     <div
       onClick={handleCardClick}
-      className="bg-white rounded-xl overflow-hidden shadow-lg card-hover cursor-pointer group"
+      className="bg-white rounded-2xl shadow-lg overflow-hidden card-hover cursor-pointer group relative transition-all duration-300 hover:shadow-2xl"
     >
+      {/* Wishlist Heart Button */}
+      <button
+        onClick={handleToggleWishlist}
+        className={`absolute top-3 right-3 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+          isFavorite
+            ? 'bg-deepRed text-white scale-110'
+            : 'bg-white/90 backdrop-blur-sm text-gray-400 hover:text-deepRed hover:scale-110'
+        } shadow-lg hover:shadow-xl`}
+        aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
+      >
+        <svg
+          className={`w-6 h-6 transition-transform ${
+            isFavorite ? 'scale-110' : ''
+          }`}
+          fill={isFavorite ? 'currentColor' : 'none'}
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+          />
+        </svg>
+      </button>
+
       {/* Image Container */}
       <div className="relative h-56 overflow-hidden">
         <img
@@ -42,11 +77,11 @@ const DishCard = ({ dish, showQuickAdd = true }) => {
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
         {dish.bestseller && (
-          <div className="absolute top-4 right-4 bg-gold text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+          <div className="absolute top-4 left-4 bg-gold text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
             ⭐ Bestseller
           </div>
         )}
-        <div className="absolute top-4 left-4">
+        <div className="absolute bottom-4 left-4">
           {dish.isVeg ? (
             <span className="badge-veg">🌿 Veg</span>
           ) : (
@@ -87,7 +122,7 @@ const DishCard = ({ dish, showQuickAdd = true }) => {
           {showQuickAdd && (
             <button
               onClick={handleAddToCart}
-              className="bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-lg font-semibold text-sm hover:shadow-lg transition-all duration-300 flex items-center space-x-2"
+              className="bg-gold hover:bg-gold-dark text-white px-4 py-2 rounded-lg font-semibold text-sm hover:shadow-lg transition-all duration-300 flex items-center space-x-2 hover:scale-105"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
